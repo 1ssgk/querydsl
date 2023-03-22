@@ -1,14 +1,11 @@
 package study.querydsl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import study.querydsl.entity.Member;
-import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
@@ -73,7 +70,7 @@ public class QuerydslBasicTest {
                 .where(member.username.eq("member1")) // 파라미터 바인딩 처리
                 .fetchOne();
 
-        assertThat(findMember.getUsername()).isEqualTo("member1");
+        assertThat(findMember.getUsername()).isNotNull().isEqualTo("member1");
     }
 
     @Test
@@ -84,7 +81,7 @@ public class QuerydslBasicTest {
                         .and(member.age.eq(10)))
                 .fetchOne();
 
-        assertThat(findMember).isEqualTo("member1");
+        assertThat(findMember.getUsername()).isEqualTo("member1");
     }
 
     @Test
@@ -97,7 +94,7 @@ public class QuerydslBasicTest {
                 )
                 .fetchOne();
 
-        assertThat(findMember).isEqualTo("member1");
+        assertThat(findMember.getUsername()).isEqualTo("member1");
     }
 
     @Test
@@ -117,7 +114,7 @@ public class QuerydslBasicTest {
     }
 
     @Test
-    public void sort(){
+    public void sort() {
         em.persist(new Member(null, 100));
         em.persist(new Member("member5", 100));
         em.persist(new Member("member6", 100));
@@ -137,4 +134,19 @@ public class QuerydslBasicTest {
         assertThat(memberNull.getUsername()).isNull();
 
     }
+
+
+    @Test
+    public void paging1() {
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .orderBy(member.username.desc())
+                .offset(1)
+                .limit(2)
+                .fetch();
+
+                //fetchResults 는 이제 지원하지 않는다.
+    }
+
+
 }
